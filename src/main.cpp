@@ -50,7 +50,7 @@ bool hasReceivedWSSequence = false;
 unsigned long lastWebsocketSequence = 0;
 
 WebSocketClient ws(true);
-DynamicJsonDocument doc(1024);
+DynamicJsonDocument doc(2048);
 DHT dht(DHTPIN, DHTTYPE);
 
 //String bot_token = "NTY0NjkxODk2MzA0MTQwMjg4.Xp_RdA.Nsc82xW_oHsw3zaUf2tsZ6uZNNQ";
@@ -65,7 +65,8 @@ const int httpsPort = 443;
 // Use web browser to view and copy
 // SHA1 fingerprint of the certificate
 const char fingerprint[] PROGMEM = "E1 8A 1D 84 F2 0E DE B1 0C 6F F7 8A 95 94 84 B9 EB 42 53 B8";// 59 74 61 88 13 CA 12 34 15 4D 11 0A C1 7f E6 67 07 69 42 F5"; //5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
-									
+  // Use WiFiClientSecure class to create TLS connection
+							
 void setup() {
   Serial.begin(9600);
   dht.begin();
@@ -83,11 +84,13 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Use WiFiClientSecure class to create TLS connection
-  WiFiClientSecure client;
+ 
+
   Serial.print("connecting to ");
   Serial.println(host);
 
+ WiFiClientSecure client;	
+    String url;
   Serial.printf("Using fingerprint '%s'\n", fingerprint);
   client.setFingerprint(fingerprint);
 
@@ -99,7 +102,7 @@ void setup() {
   }
 
 
-  String url = "/api/v6/guilds/494533687585538048";///repos/esp8266/Arduino/commits/master/status";
+url = "/api/v6/guilds/494533687585538048";///repos/esp8266/Arduino/commits/master/status";
   Serial.print("requesting URL: ");
   Serial.println(url);
 
@@ -181,7 +184,7 @@ void loop() {
         String msg;
         if (ws.getMessage(msg))
         {
-            //Serial.println(msg);
+
             deserializeJson(doc, msg);
 
             // TODO Should maintain heartbeat
@@ -198,6 +201,36 @@ void loop() {
                     websocketSessionId = doc["d"]["session_id"].as<String>();
                     hasWsSession = true;
                 }
+
+                if(doc["t"] == "MESSAGE_CREATE")
+                {
+         //                       Serial.print("---------------------------------\nRAW: ");
+          //  Serial.println(msg);
+
+        //                        Serial.print("\nDESERIALIZED: ");
+        //    Serial.println(doc.as<String>());
+                    Serial.print("\nMESSAGE: ");
+                    Serial.println(doc["d"]["content"].as<String>());
+
+                    if(doc["d"]["content"].as<String>() == "!trig") {
+                        Serial.println("TRIGTRIGTRIG");
+
+                        WiFiClientSecure client;	
+                        String url;
+                        Serial.printf("Using fingerprint '%s'\n", fingerprint);
+                        client.setFingerprint(fingerprint);
+
+                        if (!client.connect(host, httpsPort)) {
+                            Serial.println("req connection failed");
+                            return;
+                        } else {
+                            Serial.println("REQ REST GOOD");
+                        }
+                    }
+
+                    }
+                }
+
             }
             else if(doc["op"] == 9) // Connection invalid
             {
@@ -222,12 +255,16 @@ void loop() {
                 else
                 {
                     DEBUG_MSG("Send:: {\"op\":2,\"d\":{\"token\":\"" + bot_token + "\",\"properties\":{\"$os\":\"linux\",\"$browser\":\"ESP8266\",\"$device\":\"ESP8266\"},\"compress\":false,\"large_threshold\":250}}");
-                    ws.send("{\"op\":2,\"d\":{\"token\":\"" + bot_token + "\",\"properties\":{\"$os\":\"linux\",\"$browser\":\"ESP8266\",\"$device\":\"ESP8266\"},\"compress\":false,\"large_threshold\":250}}");
+                    ws.send("{\"op\":2,\"d\":{\"token\":\"" + bot_token + "\",\"properties\":{\"$os\":\"linux\",\"$browser\":\"ESP8266\",\"$device\":\"ESP8266\"},\"compress\":false,\"large_threshold\":250,\"intents\":512}}");
                 }
 
                 lastHeartbeatSend = now;
                 lastHeartbeatAck = now;
             }
+            
+            Serial.println("=========================");
+
         }
+
     }
 }

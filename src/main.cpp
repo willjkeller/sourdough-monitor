@@ -226,9 +226,7 @@ void loop() {
                         } else {
                             Serial.println("REQ REST GOOD");
                         }
-                    }
-
-                    }
+                    }             
                 }
 
             }

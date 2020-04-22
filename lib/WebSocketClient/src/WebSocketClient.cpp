@@ -11,7 +11,6 @@ const char fingerprint2[] PROGMEM = "E1 8A 1D 84 F2 0E DE B1 0C 6F F7 8A 95 94 8
 #define WS_MASK           0x80
 #define WS_SIZE16         126
 
-#define gdDEBUG
 
  #ifdef gdDEBUG
 #define DEBUG_WS Serial.println

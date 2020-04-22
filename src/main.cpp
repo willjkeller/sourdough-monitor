@@ -160,12 +160,12 @@ void loop() {
             {
                 if(hasReceivedWSSequence)
                 {
-                    DEBUG_MSG("Send:: {\"op\":1,\"d\":" + String(lastWebsocketSequence, 10) + "}");
+                    //DEBUG_MSG("Send:: {\"op\":1,\"d\":" + String(lastWebsocketSequence, 10) + "}");
                     ws.send("{\"op\":1,\"d\":" + String(lastWebsocketSequence, 10) + "}");
                 }
                 else
                 {
-                    DEBUG_MSG("Send:: {\"op\":1,\"d\":null}");
+                    //DEBUG_MSG("Send:: {\"op\":1,\"d\":null}");
                     ws.send("{\"op\":1,\"d\":null}");
                 }
                 lastHeartbeatSend = now;
@@ -181,7 +181,7 @@ void loop() {
         String msg;
         if (ws.getMessage(msg))
         {
-            Serial.println(msg);
+            //Serial.println(msg);
             deserializeJson(doc, msg);
 
             // TODO Should maintain heartbeat
@@ -212,7 +212,8 @@ void loop() {
             else if(doc["op"] == 10) // Start
             {
                 heartbeatInterval = doc["d"]["heartbeat_interval"];
-
+                Serial.print("heart int*********************: ");
+                Serial.println(heartbeatInterval);
                 if(hasWsSession)
                 {
                     DEBUG_MSG("Send:: {\"op\":6,\"d\":{\"token\":\"" + bot_token + "\",\"session_id\":\"" + websocketSessionId + "\",\"seq\":\"" + String(lastWebsocketSequence, 10) + "\"}}");

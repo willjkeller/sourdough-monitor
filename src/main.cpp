@@ -24,6 +24,9 @@
 #include <String.h>
 #include <string>
 
+# WiFi.mode(WIFI_STA);
+
+
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #define DHTPIN D2    
@@ -288,7 +291,7 @@ void loop() {
                     if(doc["d"]["content"].as<String>() == "!trig") {
                         Serial.println("TRIGTRIGTRIG");
                         ws.disconnect();
-                        make_req2();
+                        make_req();
                     }             
                 }
 

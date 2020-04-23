@@ -92,6 +92,8 @@ bool WebSocketClient::connect(String host, String path, int port) {
 
     write(handshake.c_str());
 
+	
+
 	// success criteria
 	bool hasCorrectStatus = false;
 	bool isUpgrade = false;
@@ -132,9 +134,14 @@ bool WebSocketClient::connect(String host, String path, int port) {
 
 		else if (s == "\r")
 			endOfResponse = true;
+
 	}
 
 	bool success = hasCorrectStatus && isUpgrade && isWebsocket && hasAcceptedKey;
+
+
+		WiFiClientSecure nclient;
+		nclient = ci
 
 	if (success) {
 		DEBUG_WS("[WS] sucessfully connected");

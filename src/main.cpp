@@ -22,6 +22,7 @@
 #include "ArduinoJson.h"
 #include <Time.h>
 #include <String.h>
+#include <string>
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -66,7 +67,128 @@ const int httpsPort = 443;
 // SHA1 fingerprint of the certificate
 const char fingerprint[] PROGMEM = "E1 8A 1D 84 F2 0E DE B1 0C 6F F7 8A 95 94 84 B9 EB 42 53 B8";// 59 74 61 88 13 CA 12 34 15 4D 11 0A C1 7f E6 67 07 69 42 F5"; //5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
   // Use WiFiClientSecure class to create TLS connection
-							
+
+
+
+
+void make_req() {
+    WiFiClientSecure client;	
+    String url;
+    url = "/api/v6/guilds/494533687585538048";///repos/esp8266/Arduino/commits/master/status";
+
+    Serial.print("connecting to ");
+    Serial.println(host);
+    Serial.printf("Using fingerprint '%s'\n", fingerprint);
+    client.setFingerprint(fingerprint);
+
+    if (!client.connect(host, httpsPort)) {
+        Serial.println("connection failed");
+        return;
+    } else {
+        Serial.println("REST GOOD");
+    }
+
+    Serial.print("requesting URL: ");
+    Serial.println(url);
+
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+			   "Host: " + host + "\r\n" +
+			   "Authorization: Bot " + bot_token + "\r\n" +
+			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
+			   "Connection: close\r\n\r\n");
+
+    Serial.println(String("GET ") + url + " HTTP/1.1\r\n" +
+			   "Host: " + host + "\r\n" +
+			   "Authorization: Bot " + bot_token + "\r\n" +
+			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
+			   "Connection: close\r\n\r\n");
+
+    Serial.println("request sent");
+
+	while (client.connected() || client.available())
+	{
+	  if (client.available())
+	  {
+		String line = client.readStringUntil('\n');
+		Serial.println(line);
+		break;
+	  }
+	}
+	//while (client.available()) {
+	//	client.readStringUntil('\n');
+	//}
+	client.stop();
+	Serial.println("\n[Disconnected]");
+
+    return;
+}
+
+
+void make_req2() {
+    WiFiClientSecure client;	
+    String url;
+    url = "/api/v6/channels/528755453661020182/messages";///repos/esp8266/Arduino/commits/master/status";
+
+    Serial.print("connecting to ");
+    Serial.println(host);
+    Serial.printf("Using fingerprint '%s'\n", fingerprint);
+    client.setFingerprint(fingerprint);
+
+    if (!client.connect(host, httpsPort)) {
+        Serial.println("connection failed");
+        return;
+    } else {
+        Serial.println("REST GOOD");
+    }
+
+    Serial.print("requesting URL: ");
+    Serial.println(url);
+
+    String conten = "RH: " + String(dht.readHumidity()) + " Temp: " + String(dht.readTemperature(true));
+
+    String mess = "{\"content\":\""+ conten + "\"}\r\n\r\n";
+
+    client.print(String("POST ") + url + " HTTP/1.1\r\n" +
+			   "Host: " + host + "\r\n" +
+			   "Authorization: Bot " + bot_token + "\r\n" +
+			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
+               "Content-Type: application/json\r\n"+
+               "Content-Length: " + mess.length() + "\r\n"+
+			   "Connection: close\r\n\r\n" + 
+               mess);
+
+    Serial.print(String("POST ") + url + " HTTP/1.1\r\n" +
+			   "Host: " + host + "\r\n" +
+			   "Authorization: Bot " + bot_token + "\r\n" +
+			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
+               "Content-Type: application/json\r\n"+
+               "Content-Length: " + mess.length() + "\r\n"+
+			   "Connection: close\r\n\r\n" + 
+               mess);
+
+    Serial.println("request sent");
+
+	while (client.connected() || client.available())
+	{
+	  if (client.available())
+	  {
+		String line = client.readStringUntil('\n');
+		Serial.println(line);
+		break;
+	  }
+	}
+	//while (client.available()) {
+	//	client.readStringUntil('\n');
+	//}
+	client.stop();
+	Serial.println("\n[Disconnected]");
+
+    return;
+}
+
+
+
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
@@ -86,60 +208,16 @@ void setup() {
 
  
 
-  Serial.print("connecting to ");
-  Serial.println(host);
-
- WiFiClientSecure client;	
-    String url;
-  Serial.printf("Using fingerprint '%s'\n", fingerprint);
-  client.setFingerprint(fingerprint);
-
-  if (!client.connect(host, httpsPort)) {
-	Serial.println("connection failed");
-	return;
-  } else {
-      Serial.println("REST GOOD");
-  }
+//make_req();
 
 
-url = "/api/v6/guilds/494533687585538048";///repos/esp8266/Arduino/commits/master/status";
-  Serial.print("requesting URL: ");
-  Serial.println(url);
-
- // Serial.println();
 
 
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-			   "Host: " + host + "\r\n" +
-			   "Authorization: Bot " + bot_token + "\r\n" +
-			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
-			   "Connection: close\r\n\r\n");
-
-  Serial.println(String("GET ") + url + " HTTP/1.1\r\n" +
-			   "Host: " + host + "\r\n" +
-			   "Authorization: Bot " + bot_token + "\r\n" +
-			   "User-Agent: DiscordBot (freedems.org, 1.0)\r\n" +
-			   "Connection: close\r\n\r\n");
-Serial.println("request sent");
-
-	while (client.connected() || client.available())
-	{
-	  if (client.available())
-	  {
-		String line = client.readStringUntil('\n');
-		Serial.println(line);
-		break;
-	  }
-	}
-	while (client.connected() || client.available()) {
-		client.readStringUntil('\n');
-	}
-	client.stop();
-	Serial.println("\n[Disconnected]");
 }
 //		Serial.println("loopstart");
 //socket
 void loop() {
+    //make_req();
       /*float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
@@ -204,28 +282,13 @@ void loop() {
 
                 if(doc["t"] == "MESSAGE_CREATE")
                 {
-         //                       Serial.print("---------------------------------\nRAW: ");
-          //  Serial.println(msg);
-
-        //                        Serial.print("\nDESERIALIZED: ");
-        //    Serial.println(doc.as<String>());
                     Serial.print("\nMESSAGE: ");
                     Serial.println(doc["d"]["content"].as<String>());
 
                     if(doc["d"]["content"].as<String>() == "!trig") {
                         Serial.println("TRIGTRIGTRIG");
-
-                        WiFiClientSecure client;	
-                        String url;
-                        Serial.printf("Using fingerprint '%s'\n", fingerprint);
-                        client.setFingerprint(fingerprint);
-
-                        if (!client.connect(host, httpsPort)) {
-                            Serial.println("req connection failed");
-                            return;
-                        } else {
-                            Serial.println("REQ REST GOOD");
-                        }
+                        ws.disconnect();
+                        make_req2();
                     }             
                 }
 

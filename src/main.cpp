@@ -24,7 +24,7 @@
 #include <String.h>
 #include <string>
 
-# WiFi.mode(WIFI_STA);
+//# WiFi.mode(WIFI_STA);
 
 
 #include <Adafruit_Sensor.h>

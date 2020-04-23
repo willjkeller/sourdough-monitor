@@ -140,9 +140,15 @@ bool WebSocketClient::connect(String host, String path, int port) {
 	bool success = hasCorrectStatus && isUpgrade && isWebsocket && hasAcceptedKey;
 
 
-		WiFiClientSecure nclient;
-		nclient = ci
 
+		//WiFiClientSecure nclient = client;
+		//WiFiClientSecure nclient;
+		
+		//WiFiClientSecure nclient;
+		//WiFiClientSecure nclient;
+	    //WiFiClientSecure nclient;
+
+		
 	if (success) {
 		DEBUG_WS("[WS] sucessfully connected");
         this->websocketEstablished = true;

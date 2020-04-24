@@ -23,6 +23,8 @@
 #include <Time.h>
 #include <String.h>
 #include <string>
+#include <Wire.h>
+#include <VL53L1X.h>
 
 //# WiFi.mode(WIFI_STA);
 
@@ -72,7 +74,7 @@ const char fingerprint[] PROGMEM = "E1 8A 1D 84 F2 0E DE B1 0C 6F F7 8A 95 94 84
   // Use WiFiClientSecure class to create TLS connection
 
 
-
+VL53L1X sensor;
 
 void make_req() {
     WiFiClientSecure client;	
@@ -125,7 +127,6 @@ void make_req() {
 
     return;
 }
-
 
 void make_req2() {
     WiFiClientSecure client;	
@@ -193,6 +194,9 @@ void make_req2() {
 
 
 void setup() {
+    Wire.begin(D3, D4);
+Wire.setClock(400000); // use 400 kHz I2C
+
   Serial.begin(9600);
   dht.begin();
   Serial.println();
@@ -208,8 +212,24 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  sensor.setTimeout(500);
+if (!sensor.init())
+  {
+    Serial.println("Failed to detect and initialize sensor!");
+    while (1);
+  } else {
+      Serial.println("tof sensor init good");
+  }
 
- 
+    sensor.setDistanceMode(VL53L1X::Long);
+  sensor.setMeasurementTimingBudget(50000);
+
+  // Start continuous readings at a rate of one measurement every 50 ms (the
+  // inter-measurement period). This period should be at least as long as the
+  // timing budget.
+  sensor.startContinuous(50);
+
+  
 
 //make_req();
 
@@ -221,17 +241,31 @@ void setup() {
 //socket
 void loop() {
     //make_req();
-      /*float h = dht.readHumidity();
+    float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
   // Read temperature as Fahrenheit (isFahrenheit = true)
   float f = dht.readTemperature(true);
 
-  Serial.print(F("Humidity: "));
-  Serial.print(h);
-  Serial.print(F("\n%  Temperature: "));
-  Serial.print(f);
-    delay(2000);*/
+    Serial.print(F("Humidity: "));
+    Serial.print(h);
+    Serial.print(F("\n%  Temperature: "));
+    Serial.print(f);
+
+
+  Serial.print("range: ");
+  Serial.print(sensor.ranging_data.range_mm);
+  Serial.print("\tstatus: ");
+  Serial.print(VL53L1X::rangeStatusToString(sensor.ranging_data.range_status));
+  Serial.print("\tpeak signal: ");
+  Serial.print(sensor.ranging_data.peak_signal_count_rate_MCPS);
+  Serial.print("\tambient: ");
+  Serial.print(sensor.ranging_data.ambient_count_rate_MCPS);
+  
+  Serial.println();
+
+
+    delay(2000);
 	if (!ws.isConnected()) {
 		Serial.println("connecting ws.........");
 		// It technically should fetch url from discordapp.com/api/gateway

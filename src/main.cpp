@@ -24,14 +24,14 @@
 #include <String.h>
 #include <string>
 #include <Wire.h>
-#include <VL53L1X.h>
+#include <VL53L0X.h>
 
 //# WiFi.mode(WIFI_STA);
 
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
-#define DHTPIN D2    
+#define DHTPIN D7    
 #define DHTTYPE    DHT22 
 
 #ifndef STASSID
@@ -68,13 +68,14 @@ const char* password = STAPSK;
 const char* host = "discordapp.com";
 const int httpsPort = 443;
 
+VL53L0X sensor;
+
 // Use web browser to view and copy
 // SHA1 fingerprint of the certificate
 const char fingerprint[] PROGMEM = "E1 8A 1D 84 F2 0E DE B1 0C 6F F7 8A 95 94 84 B9 EB 42 53 B8";// 59 74 61 88 13 CA 12 34 15 4D 11 0A C1 7f E6 67 07 69 42 F5"; //5F F1 60 31 09 04 3E F2 90 D2 B0 8A 50 38 04 E8 37 9F BC 76";
   // Use WiFiClientSecure class to create TLS connection
 
 
-VL53L1X sensor;
 
 void make_req() {
     WiFiClientSecure client;	
@@ -148,7 +149,7 @@ void make_req2() {
     Serial.print("requesting URL: ");
     Serial.println(url);
 
-    String conten = "RH: " + String(dht.readHumidity()) + " Temp: " + String(dht.readTemperature(true));
+    String conten = "**I WANT TO BE BREAD**\\nRH: " + String(dht.readHumidity()) + " Temp: " + String(dht.readTemperature(true)) + " Height: " + String(sensor.readRangeContinuousMillimeters()) + "mm";
 
     String mess = "{\"content\":\""+ conten + "\"}\r\n\r\n";
 
@@ -194,7 +195,7 @@ void make_req2() {
 
 
 void setup() {
-    Wire.begin(D3, D4);
+    Wire.begin();
 Wire.setClock(400000); // use 400 kHz I2C
 
   Serial.begin(9600);
@@ -216,18 +217,18 @@ Wire.setClock(400000); // use 400 kHz I2C
 if (!sensor.init())
   {
     Serial.println("Failed to detect and initialize sensor!");
-    while (1);
+    while (1) {yield();}
   } else {
       Serial.println("tof sensor init good");
   }
 
-    sensor.setDistanceMode(VL53L1X::Long);
-  sensor.setMeasurementTimingBudget(50000);
+   // sensor.setDistanceMode(VL53L0X::Long);
+  //sensor.setMeasurementTimingBudget(50000);
 
   // Start continuous readings at a rate of one measurement every 50 ms (the
   // inter-measurement period). This period should be at least as long as the
   // timing budget.
-  sensor.startContinuous(50);
+  sensor.startContinuous();
 
   
 
@@ -240,6 +241,7 @@ if (!sensor.init())
 //		Serial.println("loopstart");
 //socket
 void loop() {
+     byte error, address;
     //make_req();
     float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
@@ -250,22 +252,17 @@ void loop() {
     Serial.print(F("Humidity: "));
     Serial.print(h);
     Serial.print(F("\n%  Temperature: "));
-    Serial.print(f);
+    Serial.println(f);
 
 
   Serial.print("range: ");
-  Serial.print(sensor.ranging_data.range_mm);
-  Serial.print("\tstatus: ");
-  Serial.print(VL53L1X::rangeStatusToString(sensor.ranging_data.range_status));
-  Serial.print("\tpeak signal: ");
-  Serial.print(sensor.ranging_data.peak_signal_count_rate_MCPS);
-  Serial.print("\tambient: ");
-  Serial.print(sensor.ranging_data.ambient_count_rate_MCPS);
+  Serial.print(sensor.readRangeContinuousMillimeters());
   
   Serial.println();
+  if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
 
 
-    delay(2000);
+    delay(1000);
 	if (!ws.isConnected()) {
 		Serial.println("connecting ws.........");
 		// It technically should fetch url from discordapp.com/api/gateway
@@ -322,10 +319,10 @@ void loop() {
                     Serial.print("\nMESSAGE: ");
                     Serial.println(doc["d"]["content"].as<String>());
 
-                    if(doc["d"]["content"].as<String>() == "!trig") {
+                    if(doc["d"]["content"].as<String>() == "WHO WANTS TO BE BREAD") {
                         Serial.println("TRIGTRIGTRIG");
                         ws.disconnect();
-                        make_req();
+                        make_req2();
                     }             
                 }
 

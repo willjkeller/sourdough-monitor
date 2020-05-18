@@ -35,8 +35,10 @@
 #define DHTTYPE    DHT22 
 
 #ifndef STASSID
+#pragma region
 #define STASSID "Keller Home 2.4G"
 #define STAPSK  "9105997989"
+#pragma endregion
 #endif                                                                                                                                               
 
 #define DEBUG
@@ -59,8 +61,9 @@ WebSocketClient ws(true);
 DynamicJsonDocument doc(2048);
 DHT dht(DHTPIN, DHTTYPE);
 
-//String bot_token = "NTY0NjkxODk2MzA0MTQwMjg4.Xp_RdA.Nsc82xW_oHsw3zaUf2tsZ6uZNNQ";
+#pragma region
 String bot_token   = "NTY0NjkxODk2MzA0MTQwMjg4.Xp_RdA.Nsc82xW_oHsw3zaUf2tsZ6uZNNQ";
+#pragma endregion
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
